@@ -3,8 +3,6 @@
 // Definitions by: Justin Beaudry <https://github.com/JustinBeaudry>
 // Definitions: https://github.com/JustinBeaudry/character-sets
 
-declare module 'characters-sets' {
-    function toArray(): string[];
-    function normalize(): string[];
-    function includes(charset: string): boolean;
-}
+export function toArray(): string[];
+export function normalize(): string[];
+export function includes(charset: string): boolean;
