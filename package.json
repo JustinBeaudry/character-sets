@@ -1,6 +1,6 @@
 {
   "name": "character-sets",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "IANA Character Sets as JSON or Array of strings from https://www.iana.org/assignments/character-sets/character-sets.xhtml",
   "main": "charsets.js",
   "keywords": [
