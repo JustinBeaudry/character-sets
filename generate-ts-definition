@@ -43,9 +43,14 @@ function appendType() {
       callback();
     },
     flush(callback) {
-      chunks.push('\n');
-      chunks.push(`export type charsets = ${charsets.map(c => `'${c}'`).join(' | ')};`);
-      chunks.push('\n');
+      let type = '\nexport type charsets = ';
+      const all = charsets.map(c => `'${c}'`).join(' | ');
+      const lowercase = charsets.map(c => `'${c.toLowerCase()}'`).join(' | ');
+      type += all;
+      type += lowercase;
+      type += ';';
+      type += '\n';
+      chunks.push(type);
       callback(null, chunks.join(''));
     }
   });
