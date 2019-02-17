@@ -10,6 +10,7 @@
     "charset json"
   ],
   "files": [
+    "index.d.ts",
     "charsets.js",
     "charsets.json"
   ],
