@@ -1,0 +1,8 @@
+*.md text
+*.json text
+.editorconfig text
+.npmrc text
+.nvmrc text
+LICENSE text
+package-lock.json -diff
+*.js -diff

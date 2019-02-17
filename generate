@@ -1,0 +1,122 @@
+#!/usr/bin/env node
+'use strict';
+const fs = require('fs');
+const https = require('https');
+const zlib = require('zlib');
+const { pipeline, Transform } = require('stream');
+const { promisify } = require('util');
+const Papa = require('papaparse');
+const pino = require('pino');
+const { parse, NODE_STREAM_INPUT } = Papa;
+const pipelineAsync = promisify(pipeline);
+
+const log = pino({
+  name: 'IANA Character Set JSON',
+  level: process.env.CHARSET_LOG_LEVEL || 'info',
+  serializers: {
+    err: pino.stdSerializers.err,
+    response: res => {
+      return {
+        statusCode: res.statusCode,
+        headers: res.headers
+      };
+    }
+  },
+  timestamp: pino.stdTimeFunctions.unixTime,
+  prettyPrint: {
+    levelFirst: true
+  },
+  prettifier: require('pino-pretty')
+});
+
+const INPUT_URL = 'https://www.iana.org/assignments/character-sets/character-sets-1.csv';
+const TWO_MINUTES = 1000 * 60 * 2;
+const OUTPUT_PATH = 'charsets.json';
+
+let start = null;
+
+async function main() {
+  log.info('Generating IANA Character Set JSON');
+  start = Date.now();
+  return getCSV()
+    .then(readableCSV => {
+      return pipelineAsync([
+        readableCSV,
+        unzipCSV(),
+        parseCSV(),
+        mapCSV(),
+        writeCSV()
+      ]);
+    });
+}
+
+function getCSV() {
+  log.debug('getCSV()');
+  return new Promise((resolve, reject) => {
+    return https.get(INPUT_URL, {
+      headers: {
+        'Content-Type': 'text/csv',
+        'Accept-Encoding': 'gzip deflate identity'
+      },
+      timeout: TWO_MINUTES
+    })
+    .once('response', response => {
+      log.trace({
+        response
+      }, 'getCSV() response');
+      resolve(response);
+    })
+    .once('error', err => reject(err));
+  });
+}
+
+function unzipCSV() {
+  log.trace('unzipCSV()');
+  return zlib.createUnzip();
+}
+
+function parseCSV() {
+  log.debug('parseCSV()');
+  return parse(NODE_STREAM_INPUT, {
+    delimiter: ',',
+    newline: '\n',
+    quoteChar: '"',
+    header: true,
+    skipEmptyLines: true,
+    encoding: 'utf8',
+  });
+}
+
+function mapCSV() {
+  log.debug('mapCSV()');
+  let chunks = [];
+  return new Transform({
+    objectMode: true,
+    transform(chunk, encoding, callback) {
+      log.trace({
+        byteLength: chunk.byteLength
+      }, 'mapCSV() chunk received');
+      chunks.push(chunk['Preferred MIME Name'] || chunk.Name);
+      callback();
+    },
+    flush(callback) {
+      log.trace('mapCSV() chunks processed');
+      callback(null, JSON.stringify(chunks, null, 2) + '\n');
+    }
+  });
+}
+
+function writeCSV() {
+  log.debug('writeCSV()');
+  return fs.createWriteStream(OUTPUT_PATH);
+}
+
+main()
+  .then(() => {
+    log.info(`Generated in ${Date.now() - start}ms.`);
+  })
+  .catch(err => {
+    log.error({
+      err
+    }, 'Failed to generate');
+  });

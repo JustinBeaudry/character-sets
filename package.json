@@ -1,0 +1,40 @@
+{
+  "name": "character-sets",
+  "version": "1.0.0",
+  "description": "IANA Character Sets as JSON or Array of strings from https://www.iana.org/assignments/character-sets/character-sets.xhtml",
+  "main": "charsets.js",
+  "keywords": [
+    "charset",
+    "IANA charsets",
+    "Accept-Charset",
+    "charset json"
+  ],
+  "files": [
+    "charsets.js",
+    "charsets.json"
+  ],
+  "engines": {
+    "node": ">=4.x.x"
+  },
+  "author": {
+    "name": "Justin Beaudry",
+    "email": "beaudry.justin@gmail.com",
+    "url": "https://github.com/JustinBeaudry"
+  },
+  "repository": "https://github.com/JustinBeaudry/character-sets",
+  "bugs": "https://github.com/JustinBeaudry/character-sets/issues",
+  "homepage": "https://github.com/JustinBeaudry/character-sets#readme",
+  "license": "MIT",
+  "devDependencies": {
+    "papaparse": "4.x.x",
+    "pino": "5.x.x",
+    "pino-pretty": "2.x.x"
+  },
+  "scripts": {
+    "build": "make",
+    "test": "make test"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
