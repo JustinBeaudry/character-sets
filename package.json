@@ -5,6 +5,9 @@
   "main": "charsets.js",
   "keywords": [
     "charset",
+    "charsets",
+    "charactersets",
+    "character sets",
     "IANA charsets",
     "Accept-Charset",
     "charset json"
@@ -33,6 +36,7 @@
   },
   "scripts": {
     "build": "make",
+    "build-ts": "make build-ts",
     "test": "make test"
   },
   "publishConfig": {
