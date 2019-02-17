@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://raw.githubusercontent.com/JustinBeaudry/advent/master/LICENSE"><img alt="MIT License" 
   src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <img alt="Node 10.x.x" src="https://img.shields.io/badge/node-10.x.x-blue.svg">
+  <img alt="Node 4.x.x" src="https://img.shields.io/badge/node-4.x.x-blue.svg">
 </p>
 
 ## Install
