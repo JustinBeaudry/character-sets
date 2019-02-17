@@ -1,0 +1,61 @@
+#!/usr/bin/env node
+'use strict';
+const fs = require('fs');
+const pino = require('pino');
+const { pipeline, Transform } = require('stream');
+const { promisify } = require('util');
+
+const pipelineAsync = promisify(pipeline);
+const charsets = require('./charsets.json');
+const log = pino({
+  name: 'Character-Set TS Definition generator',
+  level: process.env.CHARSET_LOG_LEVEL || 'info',
+  timestamp: pino.stdTimeFunctions.unixTime,
+  prettyPrint: {
+    levelFirst: true
+  },
+  prettifier: require('pino-pretty')
+});
+
+const BASE = 'base.d.ts';
+const OUTPUT = 'index.d.ts';
+
+function main() {
+  log.info('Generating TypeScript definition file with appended characterSet type');
+  return pipelineAsync([
+    readBase(),
+    appendType(),
+    writeFile()
+  ]);
+}
+
+function readBase() {
+  log.debug('readBase()');
+  return fs.createReadStream(BASE);
+}
+
+function appendType() {
+  log.debug('appendType()');
+  const chunks = [];
+  return new Transform({
+    transform(chunk, encoding, callback) {
+      chunks.push(chunk.toString());
+      callback();
+    },
+    flush(callback) {
+      chunks.push('\n');
+      chunks.push(`export type charsets = ${charsets.map(c => `'${c}'`).join(' | ')};`);
+      chunks.push('\n');
+      callback(null, chunks.join(''));
+    }
+  });
+}
+
+function writeFile() {
+  log.debug('writeFile()');
+  return fs.createWriteStream(OUTPUT);
+}
+
+main()
+  .then(() => log.info('TypeScript definition file generation complete'))
+  .catch(err => log.error({err}));
